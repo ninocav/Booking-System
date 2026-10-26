@@ -93,6 +93,10 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
 .cleaning-banner strong{font-weight:600}
 .cleaning-banner .week-tag{color:#999;font-size:12px;margin-left:auto;white-space:nowrap}
 .cleaning-banner.hidden{display:none}
+.modal textarea{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:10px;font-family:inherit;resize:vertical}
+.modal textarea:focus{outline:none;border-color:#378ADD}
+.bug-fab{position:fixed;bottom:1rem;right:1rem;z-index:50;padding:7px 12px;background:#fff;border:1px solid #ddd;border-radius:999px;font-size:12px;color:#666;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.bug-fab:hover{background:#f5f5f5;color:#333}
 .congrats-modal{background:#fff;border-radius:12px;padding:1.5rem;width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.18);text-align:center}
 .congrats-modal .emoji{font-size:36px;margin-bottom:8px}
 .congrats-modal h3{font-size:15px;font-weight:600;margin-bottom:6px}
@@ -106,7 +110,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
     <button class="tab active" onclick="switchTab('desks',this)"><i class="ti ti-armchair" aria-hidden="true"></i> Desks</button>
     <button class="tab" onclick="switchTab('abs',this)"><i class="ti ti-calendar-time" aria-hidden="true"></i> Absences</button>
   </div>
-
+ 
   <div id="tab-desks">
     <div class="week-nav">
       <button onclick="changeWeek(-1)"><i class="ti ti-chevron-left"></i></button>
@@ -132,7 +136,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
     </div>
     <div class="day-scroll"><div class="day-cols" id="desk-grid"></div></div>
   </div>
-
+ 
   <div id="tab-abs" style="display:none">
     <div class="week-nav">
       <button onclick="changeWeek(-1)"><i class="ti ti-chevron-left"></i></button>
@@ -145,7 +149,21 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
     </div>
   </div>
 </div>
-
+ 
+<button class="bug-fab" onclick="openBugReport()" title="Report a bug">🐞 Report a bug</button>
+ 
+<div class="modal-bg" id="bug-modal" style="display:none" onclick="if(event.target===this)closeBugReport()">
+  <div class="modal">
+    <h3>Report a bug 🐞</h3>
+    <input type="text" id="bug-name" placeholder="Your name (optional)" maxlength="30" />
+    <textarea id="bug-text" rows="5" maxlength="1000" placeholder="What went wrong? What did you click before it happened?"></textarea>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeBugReport()">Cancel</button>
+      <button class="btn-primary" id="bug-send" onclick="sendBugReport()">Send</button>
+    </div>
+  </div>
+</div>
+ 
 <div class="modal-bg" id="congrats-modal-bg" style="display:none">
   <div class="congrats-modal">
     <div class="emoji">🍽</div>
@@ -154,7 +172,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
     <button class="btn-primary" onclick="closeCongrats()" style="width:100%">Got it!</button>
   </div>
 </div>
-
+ 
 <div class="modal-bg" id="modal" style="display:none" onclick="bgClose(event)">
   <div class="modal">
     <h3 id="modal-title">Book desk</h3>
@@ -183,7 +201,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
   </div>
 </div>
 <div class="toast" id="toast"></div>
-
+ 
 <script>
 // ── Supabase config ──────────────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://bwvcroelyvchxntcfihb.supabase.co';   // e.g. https://xxxx.supabase.co
@@ -196,7 +214,7 @@ function tableFor(key){
   if(key.startsWith('bday_')) return 'birthdays';
   return 'bookings';
 }
-
+ 
 // ── Room / rota config ───────────────────────────────────────────────────────
 const ROOMS=[
   {name:"Office 1",desks:4,color:"#9FE1CB",tc:"#085041",window:"top",panorama:[2,3]},
@@ -211,7 +229,7 @@ const ABSENCE_TYPES=[
   {key:"work",      label:"Work Trip", color:"#B5D4F4",tc:"#0C447C",icon:"ti-briefcase"},
   {key:"other",     label:"Other",     color:"#ececec",tc:"#555",   icon:"ti-dots"}
 ];
-
+ 
 const CLEANING_START_1=new Date('2026-07-06');
 const CLEANING_ROTA_1=[
   ['Clara','Frieder','Marius'],['Jannik','Mika'],['Doro','Jana'],['Nino','Tomás'],
@@ -239,11 +257,11 @@ function nameMatchesCleaning(name,team){
   const n=name.toLowerCase();
   return team.some(m=>{const mn=m.toLowerCase();return n.startsWith(mn)||mn.startsWith(n);});
 }
-
+ 
 // ── State ────────────────────────────────────────────────────────────────────
 let weekOffset=0,bookings={},absences=[],birthdays=[],pending=null,currentTab='desks',selectedType='vacation';
 const congratsShown=new Set();
-
+ 
 // ── Data loading ─────────────────────────────────────────────────────────────
 async function loadBookings(){
   try{
@@ -256,12 +274,12 @@ async function loadBookings(){
     if(bRes.error)  throw bRes.error;
     if(aRes.error)  throw aRes.error;
     if(bdRes.error) throw bdRes.error;
-
+ 
     bookings={};
     (bRes.data||[]).forEach(r=>bookings[r.id]={name:r.name,note:r.note||''});
     absences=(aRes.data||[]).map(r=>({key:r.id,name:r.name,type:r.type||'other',date:r.date||''}));
     birthdays=(bdRes.data||[]).map(r=>({key:r.id,name:r.name,date:r.date||''}));
-
+ 
     document.getElementById('loading-state').style.display='none';
     renderDesks();
     if(currentTab==='abs')renderAbsences();
@@ -272,7 +290,7 @@ async function loadBookings(){
     renderDesks();
   }
 }
-
+ 
 async function dbWrite(key,row){
   const {error}=await db.from(tableFor(key)).upsert({id:key,...row},{onConflict:'id'});
   if(error)throw error;
@@ -281,7 +299,7 @@ async function dbDelete(key){
   const {error}=await db.from(tableFor(key)).delete().eq('id',key);
   if(error)throw error;
 }
-
+ 
 // ── Date helpers ─────────────────────────────────────────────────────────────
 function getMonday(offset){
   const d=new Date();d.setHours(0,0,0,0);
@@ -304,7 +322,7 @@ function isPast(base,i){const d=new Date(base);d.setDate(d.getDate()+i);const t=
 function isAllowed(o){return o===0||o===1;}
 function escapeHtml(s){return(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function escapeAttr(s){return(s||'').replace(/'/g,"\\'");}
-
+ 
 // ── Render desks ─────────────────────────────────────────────────────────────
 function renderOffice(room,ri,dk,past){
   const slots=room.desks===4?[0,1,2,3]:[0,1,2,'x'];
@@ -323,7 +341,7 @@ function renderOffice(room,ri,dk,past){
   });
   return `<div class="office-box"><div class="win ${room.window}"></div><div class="desks">${h}</div></div>`;
 }
-
+ 
 function renderDesks(){
   const mon=getMonday(weekOffset);
   document.getElementById('week-label').textContent=formatWeek(mon);
@@ -345,14 +363,14 @@ function renderDesks(){
     });
   });
   document.getElementById('desk-grid').innerHTML=h;
-
+ 
   const ct=getCleaningTeam(mon),banner=document.getElementById('cleaning-banner');
   if(ct){
     document.getElementById('cleaning-text').innerHTML=`This week's kitchen team: <strong>${ct.team.join(', ')}</strong>`;
     document.getElementById('cleaning-week-tag').textContent=`Week ${ct.weekNum}`;
     banner.classList.remove('hidden');
   }else{banner.classList.add('hidden');}
-
+ 
   let sh='';
   DAYS.forEach((d,di)=>{
     const dk=dateKey(mon,di);
@@ -362,7 +380,7 @@ function renderDesks(){
   });
   document.getElementById('stats-bar').innerHTML=sh;
 }
-
+ 
 // ── Render absences ───────────────────────────────────────────────────────────
 function renderAbsences(){
   const mon=getMonday(weekOffset);
@@ -386,7 +404,7 @@ function renderAbsences(){
   });
   document.getElementById('absence-grid').innerHTML=h;
 }
-
+ 
 // ── Tab / week nav ────────────────────────────────────────────────────────────
 function switchTab(t,el){
   currentTab=t;weekOffset=0;
@@ -403,7 +421,7 @@ function changeWeek(d){
   weekOffset=next;renderDesks();
   if(currentTab==='abs')renderAbsences();
 }
-
+ 
 // ── Modal helpers ─────────────────────────────────────────────────────────────
 function resetModal(){
   document.getElementById('modal-note').style.display='none';
@@ -495,7 +513,7 @@ function openCancelBirthday(key,name){
 }
 function closeModal(){document.getElementById('modal').style.display='none';pending=null;}
 function bgClose(e){if(e.target===document.getElementById('modal'))closeModal();}
-
+ 
 // ── Confirm / cancel ──────────────────────────────────────────────────────────
 async function confirmBook(){
   const name=document.getElementById('modal-name').value.trim();
@@ -580,7 +598,45 @@ function toast(msg){
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
-
+ 
+// ── Bug reports (sent via Apps Script → email) ───────────────────────────────
+const BUG_URL='https://script.google.com/macros/s/AKfycbwhYKPwyh29gENtktbj0LdCu27NOMKZEOKQhijTOIOwcvt-FFxmSr6C6baHbNL5Ln7UeA/exec'; // paste the new Apps Script web app URL here
+function openBugReport(){
+  document.getElementById('bug-text').value='';
+  document.getElementById('bug-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('bug-text').focus(),50);
+}
+function closeBugReport(){document.getElementById('bug-modal').style.display='none';}
+async function sendBugReport(){
+  const message=document.getElementById('bug-text').value.trim();
+  if(!message){toast('Please describe the problem');return;}
+  if(BUG_URL.startsWith('YOUR_')){toast('Bug reporting is not set up yet');return;}
+  const btn=document.getElementById('bug-send');
+  btn.disabled=true;btn.textContent='Sending…';
+  try{
+    await fetch(BUG_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({
+        name:document.getElementById('bug-name').value.trim(),
+        message,
+        tab:currentTab,
+        week:formatWeek(getMonday(weekOffset)),
+        page:location.href,
+        browser:navigator.userAgent
+      })
+    });
+    closeBugReport();
+    toast('Thanks! Bug report sent 🐞');
+  }catch(e){
+    console.error('sendBugReport error:',e);
+    toast('Could not send – please try again');
+  }finally{
+    btn.disabled=false;btn.textContent='Send';
+  }
+}
+ 
 loadBookings();
 </script>
 </body>
