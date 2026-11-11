@@ -118,53 +118,99 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
 .ios-steps i{font-size:15px;vertical-align:-2px}
 .dn-full{display:none}
 
+.stat-date,.app-day-title,.room-free{display:none}
+
 /* ── Installed app (phone) layout — only active with <html class="app-mode"> ── */
-.app-mode body{padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);-webkit-tap-highlight-color:transparent}
-.app-mode .app{padding:0.75rem 0.75rem calc(4.5rem + env(safe-area-inset-bottom))}
-.app-mode h1{font-size:17px;margin-bottom:0.75rem}
-.app-mode .tabs{margin-bottom:0.75rem}
-.app-mode .tab{flex:1;padding:12px 8px;font-size:15px}
-.app-mode .week-nav button{padding:10px 16px;font-size:16px}
-.app-mode .week-label{font-size:15px}
-/* Day picker: the stats tiles become tappable day buttons */
-.app-mode .stats-bar{gap:6px}
-.app-mode .stat{cursor:pointer;padding:8px 2px}
+.app-mode body{background:#f3f5f8;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left);-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+.app-mode .app{padding:0 12px 12px}
+/* Top bar */
+.app-mode h1{position:sticky;top:0;z-index:40;margin:0 -12px 12px;padding:calc(env(safe-area-inset-top) + 13px) 16px 13px;background:#185FA5;color:#fff;font-size:17px;font-weight:600;letter-spacing:.1px}
+.app-mode h1 i{font-size:20px}
+/* Bottom navigation */
+.app-mode .tabs{position:fixed;left:0;right:0;bottom:0;z-index:60;margin:0;gap:0;background:#fff;border-bottom:none;border-top:1px solid #e3e6ea;padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.app-mode .tab{font-family:inherit;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 8px 8px;margin:0;font-size:11px;font-weight:500;color:#7a828c;border-bottom:none}
+.app-mode .tab i{font-size:22px}
+.app-mode .tab.active{color:#185FA5;font-weight:600}
+/* Week switcher */
+.app-mode .week-nav{margin-bottom:10px;gap:8px}
+.app-mode .week-nav button{width:40px;height:40px;padding:0;border-radius:50%;border-color:#e3e6ea;font-size:17px;color:#444}
+.app-mode .week-nav button:hover{background:#fff}
+.app-mode .week-nav button:active{background:#e9edf2}
+.app-mode .week-label{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+/* Day picker */
+.app-mode #tab-desks{display:flex;flex-direction:column}
+.app-mode .stats-bar{gap:6px;margin-bottom:12px}
+.app-mode .stat{cursor:pointer;padding:7px 2px 6px;border-radius:12px;border-color:#e3e6ea;display:flex;flex-direction:column;align-items:center;gap:1px;transition:background .15s,color .15s}
+.app-mode .stat-label{order:1;margin:0;font-size:11px;font-weight:500;color:#7a828c;text-transform:uppercase;letter-spacing:.4px}
+.app-mode .stat-today{display:none}
+.app-mode .stat-date{order:2;display:block;font-size:19px;font-weight:600;line-height:1.15;font-variant-numeric:tabular-nums}
+.app-mode .stat-num{order:3;font-size:10px;font-weight:500;color:#7a828c;font-variant-numeric:tabular-nums}
+.app-mode .stat.today{border-color:#185FA5}
+.app-mode .stat.today .stat-date{color:#185FA5}
 .app-mode .stat.sel{background:#185FA5;border-color:#185FA5;color:#fff}
-.app-mode .stat.sel .stat-label{color:#dbe9f7}
-.app-mode .cleaning-banner{font-size:13px;flex-wrap:wrap}
-.app-mode .legend{gap:6px 10px}
-.app-mode .legend-item{font-size:11px}
-/* Desk grid: one day at a time, rooms stacked */
-.app-mode .day-scroll{overflow:visible}
-.app-mode .day-cols{grid-template-columns:96px 1fr;min-width:0}
+.app-mode .stat.sel .stat-label,.app-mode .stat.sel .stat-num{color:#d5e5f6}
+.app-mode .stat.sel .stat-date{color:#fff}
+/* Selected-day heading */
+.app-mode .app-day-title{order:3;display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:2px 2px 8px;font-size:16px;font-weight:600}
+.app-mode .app-day-title small{font-size:12px;font-weight:500;color:#7a828c;white-space:nowrap}
+.app-mode #loading-state{order:4}
+/* Rooms: one card per office, one day at a time (swipe to change day) */
+.app-mode .day-scroll{order:5;overflow:visible;touch-action:pan-y}
+.app-mode .day-cols{display:block;min-width:0;border:none;border-radius:0;background:none;overflow:visible}
 .app-mode .day-header,.app-mode .day-off{display:none}
-.app-mode .room-label{font-size:13px;padding:8px}
-.app-mode .cell{border-right:none;padding:10px;min-height:0}
-.app-mode .office-box{width:min(200px,100%);height:150px}
-.app-mode .desks{inset:9px;gap:6px}
-.app-mode .desk{font-size:12px;border-radius:7px;padding:0 3px}
+.app-mode .room-label{background:#fff;border:1px solid #e3e6ea;border-bottom:none;border-radius:12px 12px 0 0;padding:10px 12px 2px;font-size:13px;font-weight:600;color:#333}
+.app-mode .room-label~.room-label{margin-top:10px}
+.app-mode .room-free{display:block;margin-left:auto;font-size:11px;font-weight:500;color:#7a828c}
+.app-mode .room-free.none{color:#b0b6bd}
+.app-mode .cell{background:#fff;border:1px solid #e3e6ea;border-top:none;border-radius:0 0 12px 12px;padding:4px 10px 10px;min-height:0}
+.app-mode .cell-past{background:#fff}
+.app-mode .office-box{width:100%;height:112px}
+.app-mode .win.top{left:25%;width:50%;height:3px;border-radius:3px}
+.app-mode .desks{inset:8px 0 0;gap:6px}
+.app-mode .desk{font-size:13px;font-weight:600;border-radius:9px;padding:0 6px;border-width:1px}
 .app-mode .desk span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .app-mode .dn-short{display:none}
 .app-mode .dn-full{display:block}
-.app-mode .desk-note{font-size:10px}
-.app-mode .pano-icon{top:4px;right:4px}
-.app-mode .desk-free:hover{background:#ececec;border-color:#d0d0d0}
+.app-mode .desk-note{font-size:10.5px;font-weight:500;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-mode .desk-free{background:#f3f5f8;border:1px dashed #c5ccd4}
+.app-mode .desk-free::before{content:"+";font-size:18px;font-weight:400;color:#a9b1ba;line-height:1}
+.app-mode .desk-free:hover{background:#f3f5f8;border-color:#c5ccd4}
+.app-mode .desk-free:active{background:#dbeeff;border-color:#378ADD}
+.app-mode .desk-taken:hover{opacity:1}
+.app-mode .desk-taken:active{opacity:.7}
+.app-mode .pano-icon{top:5px;right:6px}
+.app-mode .day-cols.slide-next{animation:app-slide-next .18s ease-out}
+.app-mode .day-cols.slide-prev{animation:app-slide-prev .18s ease-out}
+@keyframes app-slide-next{from{opacity:.2;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes app-slide-prev{from{opacity:.2;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.app-mode .day-cols{animation:none!important}}
+/* Kitchen team + legend sit below the rooms */
+.app-mode .cleaning-banner{order:6;margin:12px 0 0;border-radius:12px;font-size:13px;flex-wrap:wrap;padding:10px 12px}
+.app-mode .legend{order:7;gap:6px 14px;margin:12px 2px 0;justify-content:center}
+.app-mode .legend-item{font-size:11px;color:#7a828c}
+.app-mode .legend-item:nth-child(n+2):nth-child(-n+6){display:none}
 /* Absences: one day per row */
+.app-mode #tab-abs{touch-action:pan-y}
 .app-mode .absence-grid{grid-template-columns:1fr;gap:8px}
-.app-mode .absence-day{min-height:0;flex-direction:row}
-.app-mode .absence-day-header{width:64px;flex-shrink:0;border-bottom:none;border-right:1px solid #e0e0e0;display:flex;flex-direction:column;justify-content:center;font-size:13px}
-.app-mode .absence-list{padding:8px}
-.app-mode .absence-entry,.app-mode .birthday-entry{font-size:13px;padding:7px 9px}
-.app-mode .absence-add{margin:8px 8px 8px 0;padding:8px 10px;font-size:13px}
-.app-mode .birthday-add-btn{width:100%;justify-content:center;padding:11px;font-size:14px}
-/* Modals as bottom sheets, 16px inputs so iOS doesn't zoom in */
+.app-mode .absence-day{min-height:0;flex-direction:row;border-radius:12px;border-color:#e3e6ea}
+.app-mode .absence-day-header{width:60px;flex-shrink:0;border-bottom:none;border-right:1px solid #e3e6ea;background:#fff;display:flex;flex-direction:column;justify-content:center;font-size:13px;font-weight:600;color:#333}
+.app-mode .absence-day-header.today{background:#E6F1FB;color:#185FA5}
+.app-mode .absence-list{padding:8px;justify-content:center}
+.app-mode .absence-entry,.app-mode .birthday-entry{font-size:13px;padding:7px 10px;border-radius:8px}
+.app-mode .absence-add{margin:8px 8px 8px 0;padding:8px 10px;font-size:13px;border-radius:8px;border-color:#c5ccd4;color:#7a828c}
+.app-mode .birthday-add-btn{width:100%;justify-content:center;padding:12px;font-size:14px;border-radius:12px}
+/* Forms as bottom sheets; 16px inputs so iOS doesn't zoom in */
 .app-mode .modal-bg{align-items:flex-end}
-.app-mode .modal,.app-mode .congrats-modal{width:100%;border-radius:16px 16px 0 0;padding:1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom))}
-.app-mode .modal input,.app-mode .modal select,.app-mode .modal textarea{font-size:16px;padding:11px 12px}
-.app-mode .btn-primary,.app-mode .btn-secondary,.app-mode .btn-danger{padding:12px;font-size:15px}
-.app-mode .type-opt{padding:10px 4px;font-size:12px}
-.app-mode .bug-fab{bottom:calc(1rem + env(safe-area-inset-bottom))}
-.app-mode .toast{bottom:calc(4.5rem + env(safe-area-inset-bottom))}
+.app-mode .modal,.app-mode .congrats-modal{width:100%;border-radius:18px 18px 0 0;padding:1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom));animation:app-sheet .2s ease-out}
+@keyframes app-sheet{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.app-mode .modal h3{font-size:16px;font-weight:600}
+.app-mode .modal input,.app-mode .modal select,.app-mode .modal textarea{font-size:16px;padding:11px 12px;border-radius:10px}
+.app-mode .btn-primary,.app-mode .btn-secondary,.app-mode .btn-danger{padding:13px;font-size:15px;font-weight:500;border-radius:10px}
+.app-mode .type-opt{padding:10px 4px;font-size:12px;border-radius:10px}
+/* Bug report becomes a quiet link at the end of the page */
+.app-mode .bug-fab{position:static;display:block;margin:0 auto calc(72px + env(safe-area-inset-bottom));box-shadow:none;background:none;border:none;color:#7a828c;font-size:12px}
+.app-mode .install-fab{display:none}
+.app-mode .toast{bottom:calc(76px + env(safe-area-inset-bottom));border-radius:999px}
 .congrats-modal{background:#fff;border-radius:12px;padding:1.5rem;width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.18);text-align:center}
 .congrats-modal .emoji{font-size:36px;margin-bottom:8px}
 .congrats-modal h3{font-size:15px;font-weight:600;margin-bottom:6px}
@@ -202,6 +248,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:1.5rem;display:flex;align-items:
       <div class="legend-item"><div class="window-legend"></div>Window</div>
       <div class="legend-item"><div class="pano-legend"></div>Panorama screen</div>
     </div>
+    <div class="app-day-title" id="app-day-title"></div>
     <div class="day-scroll"><div class="day-cols" id="desk-grid"></div></div>
   </div>
  
@@ -439,10 +486,10 @@ function renderDesks(){
     h+=`<div class="day-header${t?' today':p?' past':''}">${d}<br><span style="font-size:10px">${new Date(dateKey(mon,i)).toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'})}</span></div>`;
   });
   ROOMS.forEach((room,ri)=>{
-    h+=`<div class="room-label"><span style="width:8px;height:8px;border-radius:50%;background:${room.color};display:inline-block;flex-shrink:0"></span>${room.name}</div>`;
+    h+=`<div class="room-label"><span style="width:8px;height:8px;border-radius:50%;background:${room.color};display:inline-block;flex-shrink:0"></span>${room.name}<span class="room-free" data-room="${ri}"></span></div>`;
     DAYS.forEach((_,di)=>{
       const dk=dateKey(mon,di),p=isPast(mon,di);
-      h+=`<div class="cell${p?' cell-past':''}" data-day="${di}">${renderOffice(room,ri,dk,p)}</div>`;
+      h+=`<div class="cell${p?' cell-past':''}" data-day="${di}" data-room="${ri}">${renderOffice(room,ri,dk,p)}</div>`;
     });
   });
   document.getElementById('desk-grid').innerHTML=h;
@@ -459,7 +506,7 @@ function renderDesks(){
     const dk=dateKey(mon,di);
     let total=0,booked=0;
     ROOMS.forEach((room,ri)=>{total+=room.desks;for(let desk=0;desk<room.desks;desk++){if(bookings[`${dk}_r${ri}_d${desk}`])booked++;}});
-    sh+=`<div class="stat${isToday(mon,di)?' today':''}" data-pick="${di}" onclick="pickAppDay(${di})"><div class="stat-num">${booked}/${total}</div><div class="stat-label">${d}${isToday(mon,di)?' · today':''}</div></div>`;
+    sh+=`<div class="stat${isToday(mon,di)?' today':''}" data-pick="${di}" onclick="pickAppDay(${di})"><div class="stat-num">${booked}/${total}</div><div class="stat-label">${d}${isToday(mon,di)?'<span class="stat-today"> · today</span>':''}</div><div class="stat-date">${+dk.slice(8)}</div></div>`;
   });
   document.getElementById('stats-bar').innerHTML=sh;
   applyAppDay();
@@ -477,8 +524,55 @@ function applyAppDay(){
   }
   document.querySelectorAll('#desk-grid [data-day]').forEach(el=>el.classList.toggle('day-off',+el.dataset.day!==appDay));
   document.querySelectorAll('#stats-bar [data-pick]').forEach(el=>el.classList.toggle('sel',+el.dataset.pick===appDay));
+  // Heading for the selected day + free-desk counts
+  const mon=getMonday(weekOffset),day=new Date(mon);day.setDate(day.getDate()+appDay);
+  const past=isPast(mon,appDay);
+  let freeAll=0,total=0;
+  ROOMS.forEach((room,ri)=>{
+    const cell=document.querySelector(`#desk-grid .cell[data-day="${appDay}"][data-room="${ri}"]`);
+    const taken=cell?cell.querySelectorAll('.desk-taken').length:0,free=room.desks-taken;
+    freeAll+=free;total+=room.desks;
+    const chip=document.querySelector(`#desk-grid .room-free[data-room="${ri}"]`);
+    if(chip){chip.textContent=past?'':free?`${free} free`:'Full';chip.classList.toggle('none',!free);}
+  });
+  const title=day.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('app-day-title').innerHTML=`<span>${isToday(mon,appDay)?'Today · ':''}${title}</span><small>${past?'Past day':`${freeAll} of ${total} desks free`}</small>`;
 }
-function pickAppDay(i){if(!isAppMode())return;appDay=i;applyAppDay();}
+function pickAppDay(i){
+  if(!isAppMode()||i===appDay)return;
+  const dir=i>appDay?'next':'prev';
+  appDay=i;applyAppDay();slideGrid(dir);
+}
+function slideGrid(dir){
+  const g=document.getElementById('desk-grid');
+  g.classList.remove('slide-next','slide-prev');void g.offsetWidth;   // restart the animation
+  g.classList.add('slide-'+dir);
+}
+// Swipe left/right: next/previous day on Desks (rolling over into the other
+// bookable week), next/previous week on Absences.
+function appSwipe(dir){                     // dir: +1 = next, -1 = previous
+  if(!isAppMode())return;
+  if(currentTab==='abs'){changeWeek(dir);return;}
+  if(!isAllowed(weekOffset))return;
+  const next=appDay+dir;
+  if(next>=0&&next<DAYS.length){pickAppDay(next);return;}
+  if(!isAllowed(weekOffset+dir))return;     // no further week to go to
+  appDayWeek=weekOffset+dir;appDay=dir>0?0:DAYS.length-1;
+  changeWeek(dir);slideGrid(dir>0?'next':'prev');
+}
+if(isAppMode()){
+  let sx=0,sy=0,tracking=false;
+  const area=document.querySelector('.app');
+  area.addEventListener('touchstart',e=>{
+    tracking=e.touches.length===1&&!e.target.closest('.week-nav,.stats-bar,input,select,textarea');
+    if(tracking){sx=e.touches[0].clientX;sy=e.touches[0].clientY;}
+  },{passive:true});
+  area.addEventListener('touchend',e=>{
+    if(!tracking)return;tracking=false;
+    const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Math.abs(dx)>=50&&Math.abs(dx)>Math.abs(dy)*1.5)appSwipe(dx<0?1:-1);
+  },{passive:true});
+}
  
 // ── Render absences ───────────────────────────────────────────────────────────
 function renderAbsences(){
